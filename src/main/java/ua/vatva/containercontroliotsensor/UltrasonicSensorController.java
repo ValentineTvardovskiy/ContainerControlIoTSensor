@@ -16,6 +16,11 @@ import static ua.vatva.containercontroliotsensor.SensorConstrants.DEVICE_ID;
 @RestController
 public class UltrasonicSensorController {
 
+    public static final int ECHO_LIMIT = 5;
+//    public static GpioController gpio = GpioFactory.getInstance();
+//    public static GpioPinDigitalOutput sensorTriggerPin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_23);
+//    public static GpioPinDigitalInput sensorEchoPin = gpio.provisionDigitalInputPin(RaspiPin.GPIO_24, PinPullResistance.PULL_DOWN);
+
     @GetMapping("/" + DEVICE_ID + "/ultrasonicsensordata")
     public ResponseEntity<String> getData() {
 
@@ -23,7 +28,10 @@ public class UltrasonicSensorController {
         GpioPinDigitalOutput sensorTriggerPin = gpio.provisionDigitalOutputPin(RaspiPin.GPIO_23);
         GpioPinDigitalInput sensorEchoPin = gpio.provisionDigitalInputPin(RaspiPin.GPIO_24, PinPullResistance.PULL_DOWN);
 
-        while (true) {
+//        int echoCounter = 0;
+        double distanceSum = 0;
+
+//        while (echoCounter < ECHO_LIMIT) {
             try {
                 sensorTriggerPin.low();
                 Thread.sleep(2000);
@@ -32,25 +40,24 @@ public class UltrasonicSensorController {
                 sensorTriggerPin.low();
 
                 while(sensorEchoPin.isLow()){ //Wait until the ECHO pin gets HIGH
-
                 }
                 long startTime= System.nanoTime(); // Store the surrent time to calculate ECHO pin HIGH time.
 
                 while(sensorEchoPin.isHigh()){ //Wait until the ECHO pin gets LOW
-
                 }
                 long endTime= System.nanoTime(); // Store the echo pin HIGH end time to calculate ECHO pin HIGH time.
 
-                System.out.println("Distance :" + ((((endTime-startTime)/1e3)/2) / 29.1) + " cm");
+                distanceSum += (endTime-startTime) * 17150;
+//                echoCounter++;
 
-                Thread.sleep(2000);
+                Thread.sleep(1000);
 
             } catch (InterruptedException e) {
                 e.printStackTrace();
-                break;
+//                break;
             }
-        }
-
-        return new ResponseEntity<>("finished", HttpStatus.OK);
+//        }
+        String response = "Distance : " + distanceSum + " cm";
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
