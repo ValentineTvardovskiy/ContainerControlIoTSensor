@@ -13,8 +13,10 @@ import static ua.vatva.containercontroliotsensor.SensorConstrants.ULTRASONIC_PAT
 public class UltrasonicSensorController {
 
     @GetMapping("/" + DEVICE_ID + "/ultrasonicsensordata")
-    public ResponseEntity<UltrasonicData> getData() {
+    public UltrasonicData getData() {
         String url = "http://127.0.0.1:5000" + ULTRASONIC_PATH;
-        return new RestTemplate().getForEntity(url, UltrasonicData.class);
+        ResponseEntity<UltrasonicData> result = new RestTemplate().getForEntity(url, UltrasonicData.class);
+        System.out.println(result.getBody());
+        return result.getBody();
     }
 }
